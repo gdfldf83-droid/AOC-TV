@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AOC TV - Prueba 1</title>
+<style>
+html, body { margin:0; padding:0; width:100%; height:100%; background:#061126; color:#f4f7ff; font-family:Arial, Helvetica, sans-serif; }
+* { box-sizing:border-box; }
+body { overflow:hidden; }
+#top { height:74px; padding:14px 24px; background:#081a35; border-bottom:1px solid #17345b; }
+#brand { font-size:30px; font-weight:bold; letter-spacing:1px; color:#f5f8ff; }
+#brand span { color:#1597ff; }
+#tag { font-size:11px; color:#9fb6d8; margin-top:2px; letter-spacing:1px; }
+#layout { display:table; width:100%; height:calc(100% - 108px); }
+#side { display:table-cell; width:190px; vertical-align:top; padding:18px 10px; background:#07152c; border-right:1px solid #17345b; }
+.nav { padding:13px 12px; margin:5px 0; border-radius:10px; color:#c5d5ee; font-size:17px; }
+.nav.selected { background:#075ce5; color:#fff; outline:3px solid #28aaff; }
+#main { display:table-cell; vertical-align:top; padding:22px; }
+.hero { height:170px; padding:22px; border-radius:14px; border:1px solid #21416b; background:linear-gradient(110deg,#102d56,#10182e 62%,#263d67); }
+.pill { display:inline-block; background:#0767ef; padding:5px 10px; border-radius:14px; font-size:11px; font-weight:bold; }
+h1 { font-size:30px; margin:13px 0 5px; }
+.sub { color:#c1d2eb; font-size:15px; }
+#hint { color:#9cb5d8; font-size:13px; margin-top:12px; }
+h2 { font-size:19px; margin:22px 0 10px; }
+#channels { display:table; width:100%; table-layout:fixed; border-spacing:8px; margin-left:-8px; }
+.channel { display:table-cell; vertical-align:middle; text-align:center; height:95px; padding:10px 5px; background:#0d203f; border:1px solid #23446e; border-radius:10px; color:#d9e8ff; font-size:13px; }
+.channel.selected { border:3px solid #1597ff; background:#123467; color:#fff; }
+.bigicon { font-size:25px; display:block; margin-bottom:8px; }
+#bottom { height:34px; padding:8px 18px; border-top:1px solid #17345b; background:#081a35; color:#b9cce7; font-size:12px; }
+#status { color:#52e0a0; }
+#help { float:right; }
+#playlistBox { display:none; margin-top:12px; padding:12px; background:#0b1c37; border:1px solid #23446e; border-radius:10px; }
+input { width:75%; padding:10px; color:#fff; background:#061126; border:1px solid #3b5f8c; border-radius:6px; font-size:14px; }
+button { padding:10px 14px; color:#fff; background:#075ce5; border:1px solid #3b9dff; border-radius:6px; font-size:14px; }
+@media (max-width:700px) {
+ #side { width:140px; } .nav {font-size:14px;padding:10px 7px;} #main {padding:12px;} .hero {height:150px;} h1 {font-size:24px;} .channel {font-size:11px;} 
+}
+</style>
+</head>
+<body>
+<div id="top">
+ <div id="brand">▣ AOC <span>TV</span></div>
+ <div id="tag">TU TV, EN UN SOLO LUGAR · PRUEBA 1</div>
+</div>
+<div id="layout">
+ <div id="side">
+  <div class="nav selected" data-nav="0">⌂ &nbsp; Inicio</div>
+  <div class="nav" data-nav="1">▣ &nbsp; TV en vivo</div>
+  <div class="nav" data-nav="2">▦ &nbsp; Listas M3U</div>
+  <div class="nav" data-nav="3">♡ &nbsp; Favoritos</div>
+  <div class="nav" data-nav="4">⚙ &nbsp; Configuración</div>
+ </div>
+ <div id="main">
+  <div class="hero">
+   <span class="pill">PRIMERA PRUEBA</span>
+   <h1 id="heroTitle">AOC TV</h1>
+   <div class="sub" id="heroSub">Una interfaz creada para tu televisor.</div>
+   <div id="hint">Usá las flechas del control remoto y OK para navegar.</div>
+  </div>
+  <h2 id="sectionTitle">Accesos rápidos</h2>
+  <div id="channels">
+   <div class="channel selected" tabindex="0"><span class="bigicon">▣</span>TV en vivo</div>
+   <div class="channel" tabindex="0"><span class="bigicon">☷</span>Cargar lista</div>
+   <div class="channel" tabindex="0"><span class="bigicon">♡</span>Favoritos</div>
+   <div class="channel" tabindex="0"><span class="bigicon">⚙</span>Ajustes</div>
+  </div>
+  <div id="playlistBox">
+   <div style="margin-bottom:8px">Dirección de una lista M3U (prueba futura):</div>
+   <input id="playlistUrl" type="text" value="" placeholder="http://servidor/lista.m3u">
+   <button id="loadButton">Guardar dirección</button>
+   <div id="playlistMsg" class="sub" style="margin-top:8px">En esta primera prueba solo comprobamos la interfaz.</div>
+  </div>
+ </div>
+</div>
+<div id="bottom"><span id="status">● Interfaz lista</span><span id="help">← → Mover &nbsp; OK Seleccionar &nbsp; Atrás Volver</span></div>
+<script type="text/javascript">
+(function () {
+ var navs = document.getElementsByClassName('nav');
+ var cards = document.getElementsByClassName('channel');
+ var navIndex = 0, cardIndex = 0, area = 'nav';
+ var titles = ['AOC TV','TV en vivo','Listas M3U','Favoritos','Configuración'];
+ var subs = ['Una interfaz creada para tu televisor.','Aquí aparecerán los canales compatibles.','Preparada para listas M3U pequeñas.','Tus canales favoritos estarán aquí.','Ajustes sencillos para la AOC.'];
+ function selectNav(i) {
+  navIndex = (i + navs.length) % navs.length;
+  for (var n=0;n<navs.length;n++) navs[n].className = n===navIndex ? 'nav selected' : 'nav';
+  document.getElementById('heroTitle').innerHTML = titles[navIndex];
+  document.getElementById('heroSub').innerHTML = subs[navIndex];
+ }
+ function selectCard(i) {
+  cardIndex = (i + cards.length) % cards.length;
+  for (var n=0;n<cards.length;n++) cards[n].className = n===cardIndex ? 'channel selected' : 'channel';
+ }
+ function activate() {
+  if (area === 'nav') {
+   if (navIndex === 1) { area='cards'; selectCard(0); }
+   else if (navIndex === 2) { document.getElementById('playlistBox').style.display='block'; area='cards'; selectCard(1); }
+   else { area='cards'; selectCard(navIndex===3?2:3); }
+  } else {
+   if (cardIndex === 1) {
+    document.getElementById('playlistBox').style.display='block';
+    document.getElementById('playlistUrl').focus();
+   } else if (cardIndex === 0) {
+    document.getElementById('heroTitle').innerHTML='TV en vivo';
+    document.getElementById('heroSub').innerHTML='Siguiente paso: conectar canales HTTP compatibles.';
+    document.getElementById('status').innerHTML='● Reproductor todavía no conectado';
+   } else if (cardIndex === 2) {
+    document.getElementById('heroTitle').innerHTML='Favoritos';
+    document.getElementById('heroSub').innerHTML='Los agregaremos en una próxima versión.';
+   } else {
+    document.getElementById('heroTitle').innerHTML='Configuración';
+    document.getElementById('heroSub').innerHTML='Prueba de navegación del control remoto.';
+   }
+  }
+ }
+ for (var i=0;i<navs.length;i++) {
+  navs[i].onclick = (function(k){ return function(){ area='nav'; selectNav(k); }; })(i);
+ }
+ for (var j=0;j<cards.length;j++) {
+  cards[j].onclick = (function(k){ return function(){ area='cards'; selectCard(k); activate(); }; })(j);
+ }
+ document.getElementById('loadButton').onclick = function() {
+  var v = document.getElementById('playlistUrl').value;
+  document.getElementById('playlistMsg').innerHTML = v ? 'Dirección escrita. La carga real de M3U se implementará después.' : 'Escribí una dirección primero.';
+ };
+ document.onkeydown = function(e) {
+  e = e || window.event;
+  var key = e.keyCode;
+  if (key===37) { if(area==='cards') {area='nav';selectNav(navIndex);} else selectNav(navIndex-1); }
+  else if (key===39) { if(area==='nav') {area='cards';selectCard(0);} else selectCard(cardIndex+1); }
+  else if (key===38) { if(area==='cards') {area='nav';selectNav(navIndex);} else selectNav(navIndex-1); }
+  else if (key===40) { if(area==='nav') {area='cards';selectCard(0);} else selectCard(cardIndex+1); }
+  else if (key===13) { activate(); }
+  else if (key===8 || key===27 || key===461) {
+   document.getElementById('playlistBox').style.display='none';
+   area='nav'; selectNav(0);
+  }
+  if (key===37 || key===38 || key===39 || key===40 || key===13 || key===8 || key===27 || key===461) {
+   if (e.preventDefault) e.preventDefault();
+   return false;
+  }
+ };
+ selectNav(0); selectCard(0);
+})();
+</script>
+</body>
+</html>
